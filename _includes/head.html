@@ -18,7 +18,7 @@
   {% endif %}
 
   {% if page.tags and page.keywords %}
-  <meta name="keywords" content="{{ page.keywords | concat: tags | join: ', ' | escape }}">
+  <meta name="keywords" content="{{ page.keywords | concat: page.tags | join: ', ' | escape }}">
   {% else %}
   <meta name="keywords" content="{{ page.tags | join: ', ' | escape }}">
   {% endif %}
