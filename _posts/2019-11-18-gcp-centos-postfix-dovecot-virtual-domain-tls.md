@@ -70,7 +70,7 @@ netstat -tpln
 ## Mail Service 安裝
 - 完整 email address: john@example.com
 - Mail Server `FQDN` : mail.example.com `替換後面[FQDN]的地方`
-- Top Level Domain: example.com
+- Root Domain: example.com
 
 ```bash
 yum -y install wget telnet git socat
