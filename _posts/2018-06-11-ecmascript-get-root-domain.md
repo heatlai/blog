@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  '[ECMAScript] 取得最上層網域'
+title:  '[ECMAScript] 取得根網域'
 subtitle: 'ECMAScript - Get Root Domain'
 background: '/img/posts/03.jpg'
 
@@ -9,7 +9,7 @@ date: 2018-06-11
 tags: [ECMAScript, Cookie]
 ---
 
-# 取得最上層網域
+# 取得根網域
 
 方便有多個子網域時 set-cookie
 
