@@ -1,12 +1,15 @@
 ---
 layout: post
-title:  '[ECMAScript] 取得根網域'
-subtitle: 'ECMAScript - Get Root Domain'
+title:  '[JavaScript] 取得根網域'
+subtitle: 'JavaScript - Get Root Domain'
 background: '/img/posts/03.jpg'
 
 date: 2018-06-11
 
-tags: [ECMAScript, Cookie]
+keywords:
+    - root domain
+
+tags: [JavaScript, Cookie]
 ---
 
 # 取得根網域
