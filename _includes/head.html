@@ -17,8 +17,10 @@
   <meta name="description" content="{{ page.excerpt | default: site.description | strip_html | normalize_whitespace | truncate: 160 | escape }}">
   {% endif %}
 
-  {% if page.keywords %}
-  <meta name="keywords" content="{{ page.keywords | join: ', ' | escape }}">
+  {% if page.tags and page.keywords %}
+  <meta name="keywords" content="{{ page.keywords | concat: tags | join: ', ' | escape }}">
+  {% else %}
+  <meta name="keywords" content="{{ page.tags | join: ', ' | escape }}">
   {% endif %}
 
   <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>

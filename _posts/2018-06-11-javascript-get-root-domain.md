@@ -6,9 +6,7 @@ background: '/img/posts/03.jpg'
 
 date: 2018-06-11
 
-keywords:
-    - root domain
-
+keywords: [js, domain]
 tags: [JavaScript, Cookie]
 ---
 
