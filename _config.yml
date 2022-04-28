@@ -2,7 +2,7 @@ title:             Heat's Blog
 email:             hitgunlai@gmail.com
 description:       聽說寫部落格考試會得一百分
 author:            Heat Lai
-baseurl:           "/"
+baseurl:           ""
 permalink:         "/post/:year/:month/:day/:title/"
 url:               "https://heat.hypenode.tw"
 keywords:          ["blog", "heat", "lai", "Heat Lai"]
@@ -14,6 +14,9 @@ ad_enable: true
 #github_username:   heatlai
 #facebook_username: StartBootstrap
 linkedin_username: heatlai
+
+# Add your google-analytics ID here to activate google analytics
+google_analytics:   UA-XXXXXXXXX-X # out your google-analytics code
 
 # Disqus Comments
 disqus:
