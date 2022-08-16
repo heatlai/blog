@@ -68,6 +68,7 @@ vim /etc/supervisor/conf.d/ratchet.ini
 [program:ratchet]
 command                 = bash -c "ulimit -n 10000; exec /usr/bin/php /root/websocket-start.php" ; 要執行的CMD
 ;directory              = /root ; 先cd到directory再執行command (非必要, 全部寫絕對路徑也可以)
+;process_name=%(program_name)s_%(process_num)02d
 process_name            = Ratchet ; process 名稱
 numprocs                = 1 ; process 數量
 autostart               = true ; 自動啟動
