@@ -86,7 +86,7 @@ redirect_stderr         = true ; error_log 直接寫到 stdout_logfile
 # 啟動 service
 ```
 sudo service supervisord start
-supervisorctl
+sudo supervisorctl status | awk '{print $1, $2}'
 ```
 
 # 開機自動啟動 supervisor (CentOS 6)
