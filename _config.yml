@@ -3,7 +3,7 @@ email:             hitgunlai@gmail.com
 description:       聽說寫部落格考試會得一百分
 author:            HeatLai
 baseurl:           ""
-permalink:         "/post/:year/:month/:day/:title/"
+permalink:         "/post/:title/"
 url:               "https://heat.hypenode.tw"
 keywords:          ["blog", "heatlai"]
 
