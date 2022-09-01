@@ -5,6 +5,7 @@ subtitle:  'Install Rainloop Mail Web UI on CentOS'
 background: '/img/posts/04.jpg'
 category: Develop
 tags: [CentOS, Mail]
+keywords: [Rainloop, Install]
 ---
 
 # Rainloop

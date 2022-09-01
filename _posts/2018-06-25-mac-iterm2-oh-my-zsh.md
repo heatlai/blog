@@ -8,6 +8,7 @@ date: 2018-06-25
 updated_at: 2020-05-22
 
 tags: [Mac, Shell]
+keywords: [zsh, iTerm2]
 ---
 # 安裝 Homebrew
 <a href="https://brew.sh/index_zh-tw" target="_blank">Homebrew</a>

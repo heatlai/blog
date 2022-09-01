@@ -1,12 +1,12 @@
 ---
 layout: post
-title:  '[Nginx] 用 AWS Load Balancer 做 Nginx 反向代理'
-subtitle: 'Nginx - Reverse Proxy using AWS Load Balancer'
+title:  '[Nginx] 用 AWS Load Balancer 串接 Nginx 反向代理 PHP-FPM'
+subtitle: 'Nginx Reverse Proxy With AWS Load Balancer'
 background: '/img/posts/01.jpg'
-description: "Nginx Reverse Proxy, using AWS Load Balancer, debug PHP check https"
 date: 2019-08-19
 category: Develop
 tags: [Nginx, AWS]
+keywords: [Load Balance, Reverse Proxy, php-fpm]
 ---
 
 # 反向代理在做什麼？

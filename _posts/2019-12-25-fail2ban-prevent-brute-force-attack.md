@@ -5,6 +5,7 @@ subtitle: 'Fail2ban - prevent Brute-force attack on CentOS 7'
 background: '/img/posts/03.jpg'
 category: Develop
 tags: [CentOS, Mail, Security]
+keywords: [Fail2ban, Prevent, Brute-Force Attack]
 ---
 
 # Fail2Ban

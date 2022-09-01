@@ -5,6 +5,7 @@ subtitle:  'iThome Cloud Edge Summit Taiwan 2020 note'
 background: '/img/posts/05.jpg'
 category: Develop
 tags: [Conference]
+keywords: [iThome Cloud Edge Summit Taiwan 2020]
 ---
 
 只記錄有參加到的議程，還有很多沒參加到的議程可以到官網去看簡報。  

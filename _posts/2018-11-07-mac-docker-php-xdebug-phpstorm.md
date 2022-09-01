@@ -7,6 +7,7 @@ background: '/img/posts/02.jpg'
 date: 2018-11-07
 
 tags: [PHP, Mac, Docker, PhpStorm]
+keywords: [xdebug]
 ---
  
 ## Mac 

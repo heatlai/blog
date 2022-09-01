@@ -7,6 +7,7 @@ background: '/img/posts/01.jpg'
 date: 2018-10-18
 
 tags: [CentOS]
+keywords: [Supervisor, Install]
 ---
 
 # 安裝

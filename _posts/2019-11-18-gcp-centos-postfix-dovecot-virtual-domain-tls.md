@@ -7,6 +7,7 @@ description: "手把手建置一台 CentOS Mail Server on GCP"
 date: 2019-11-18
 category: Develop
 tags: [GCP, CentOS, Mail]
+keywords: [Postfix, Dovecot, Mailgun]
 ---
 
 # Mail Server 設定筆記
