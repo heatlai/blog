@@ -57,7 +57,7 @@ The purpose of this snippet is to list all your posts posted with a certain tag.
 	{% for post in site.posts %}
 	{% if post.tags contains tag %}
 	<li class="archive-li">
-			<span class="archive-article-date ymd">{{ post.date | date: '%Y %b %d' }}</span>
+			<span class="archive-article-date ymd">{{ post.date | date: '%Y-%m-%d' }}</span>
 			<a class="archive-article-title" href="{{ post.url }}">{{ post.title }}</a>
 			<span class="archive-tag-suffix">( {% for tag1 in post.tags %}<a href="#{{ tag1 | slugify }}">{{tag1}}</a> {% endfor %})</span>
 			<!--

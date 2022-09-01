@@ -16,13 +16,12 @@ layout: default
           <span class="meta">
             {{ site.author }} on {{ page.date | date: "%Y-%m-%d" }}
             &middot;
-            {% include read_time.html content=page.content %}
+            {% include read-time.html content=page.content %}
           </span>
           {% comment %}
           <span class="meta">
             <a class="disqus-comment-count" href="{{ page.url }}#disqus_thread" data-disqus-identifier="{{ page.id }}"></a>
           </span>
-          {% include read-time.html %}
           {% endcomment %}
           <!--<span class="meta">Posted by-->
             <!--<a href="{{"/about" | relative_url }}">{{ site.author }}</a>-->
