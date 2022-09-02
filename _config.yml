@@ -22,6 +22,15 @@ google_analytics:   UA-XXXXXXXXX-X # out your google-analytics code
 disqus:
   shortname: heatlai
 
+# glob config
+defaults:
+  # for sitemap
+  -
+    scope:
+      path: "assets/*"
+    values:
+      sitemap: false
+
 # Build settings
 timezone:          Asia/Taipei
 markdown:          kramdown
