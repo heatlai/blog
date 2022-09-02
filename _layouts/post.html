@@ -47,10 +47,12 @@ layout: default
   {% endcomment %}
   <div class="row">
     <article class="col mx-auto post-content">
+      {% comment %}
       {% if site.ad_enable %}
       <div class="ads">{% include adsense.html %}</div>
       <hr>
       {% endif %}
+      {% endcomment %}
 
       {% if page.updated_at %}
         <div class="alert alert-secondary" role="alert">
@@ -61,10 +63,12 @@ layout: default
       {{ content }}
 
       <hr>
+      {% comment %}
       {% if site.ad_enable %}
       <div class="ads">{% include adsense.html %}</div>
       <hr>
       {% endif %}
+      {% endcomment %}
       
       {% if page.tags != empty %}
       <h6 class="tags">Tags : [
