@@ -14,7 +14,7 @@ layout: default
           <h2 class="subheading">{{ page.subtitle }}</h2>
           {% endif %}
           <span class="meta">
-            {{ site.author }} on {{ page.date | date: "%Y-%m-%d" }}
+            {{ site.author }} edited at {{ page.updated_at | default: page.date | date: "%Y-%m-%d" }}
             &middot;
             {% include read-time.html content=page.content %}
           </span>
@@ -54,11 +54,13 @@ layout: default
       {% endif %}
       {% endcomment %}
 
+      {% comment %}
       {% if page.updated_at %}
         <div class="alert alert-secondary" role="alert">
           Latest Update：<span class="badge badge-secondary">{{ page.updated_at }}</span>
         </div>
       {% endif %}
+      {% endcomment %}
 
       {{ content }}
 
