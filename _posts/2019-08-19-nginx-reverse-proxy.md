@@ -1,58 +1,23 @@
 ---
 layout: post
-title:  '[Nginx] 用 AWS Load Balancer 串接 Nginx 反向代理 PHP-FPM'
-subtitle: 'Nginx Reverse Proxy To PHP-FPM With AWS Load Balancer'
+title:  '[Nginx] 反向代理 + 負載平衡'
+subtitle: 'Nginx Reverse Proxy + Load Balancer'
 background: '/img/posts/01.jpg'
 date: 2019-08-19
 
 category: Develop
-tags: [Nginx, AWS]
+tags: [Nginx]
 keywords: [Load Balancer, Reverse Proxy, PHP-FPM]
 ---
 
-# 反向代理在做什麼？
-分析 Request 然後轉發至後端不同的 server 進行後續處理   
-舉例：  
+可先閱讀： [什麼是反向代理 (Reverse Proxy)](/post/2019/08/19/reverse-proxy/)
 
-- "example.com/order" -> "order-server:80"  
-- "example.com/sign-in" -> "sign-in-server:80"  
-- "example.com/shop" -> "shop-server:80"
-
-對外只有一個 domain，但其實每個不同網址的 Request 是不同 server 在處理
-
-## 架構 
-User <- `HTTPS` -> AWS Load Balancer <- `HTTP` -> 反向代理 Nginx <- `HTTP` -> App Nginx <- `fastcgi` -> PHP-FPM
-
-## 踩雷
-proxy 通了，但是 URL 打的是 https://xxx.com ，PHP 接收到的 request 卻不是 HTTPS，  
-原因是過了 AWS Load Balancer 之後就是 HTTP 連線了，所以需要承接 HTTPS 參數往後送。  
-下面 config 是同時需要 HTTP 跟 HTTPS 時才這樣寫，
-如果對外服務只允許 https 時，可以寫 force redirect HTTP to HTTPS，  
-然後 App Nginx config 寫死 `fastcgi_param HTTPS "on"` 這樣就不需要檢查 X-Forwarded-Proto 了
-
-### AWS Load Balancer Force Redirect HTTP to HTTPS (optional)
-```
-Listener : HTTP  
-
-[Rule]
-IF ： Requests otherwise not routed  
-Redirect(301) to https://#{host}:443/#{path}?#{query}
-```
-
-### AWS Load Balancer
-```
-Listener : HTTPS  
-Target Group : HTTP  
-
-[Rule]
-IF : Host header is "example.com" or "www.example.com" 
-THEN : Forward to "Nginx-tier-1"
-```
+## 架構
+![Architecture Diagram](/img/posts/2019-08-19-nginx-reverse-proxy/reverse-proxy-example-load-balancer.png)
 
 ### 反向代理(Reverse Proxy) Nginx Config
 ```nginx
-
-# 抓取 X-Forwarded 參數繼續後送
+# 抓取 X-Forwarded 參數繼續往後送 (如果有)
 map $http_x_forwarded_proto $x_proto {
     default $http_x_forwarded_proto;
     "" "https";
@@ -65,15 +30,15 @@ map $http_x_forwarded_port $x_port {
 # 後端 app server 群組
 upstream app_group 
 {
-	server app-1:80;
-	server app-2:80;
+    server app-1:80;
+    server app-2:80;
 }
 
 server {
     listen       80;
     listen       [::]:80;
     
-    server_name  www.example.com example.com;
+    server_name  example.com www.example.com;
     root         /usr/share/nginx/html;
 
     location / {
@@ -114,7 +79,7 @@ server {
     listen       [::]:80;
 
     server_name  example.com www.example.com;
-    root  /var/www/html/myproject/public;
+    root  /app/public;
     index index.php index.html index.htm;
     charset utf-8;
     server_tokens off;
