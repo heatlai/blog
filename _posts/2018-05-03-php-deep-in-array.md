@@ -1,12 +1,13 @@
 ---
 layout: post
 title:  '[PHP] 檢查多維陣列內數值是否存在'
-subtitle: 'PHP - Deep In Array'
+subtitle: 'PHP - Check Value Exists Deep In Array'
 background: '/img/posts/06.jpg'
 
 date: 2018-05-03
 
 tags: [PHP]
+keywords: [deep, array, check, value, exists]
 ---
 
 # 檢查多維陣列內數值是否存在

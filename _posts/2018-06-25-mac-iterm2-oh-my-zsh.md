@@ -7,7 +7,7 @@ background: '/img/posts/04.jpg'
 updated_at: 2020-05-22
 
 tags: [Mac, Shell]
-keywords: [zsh, iTerm2]
+keywords: [zsh, iTerm2, oh-my-zsh, powerlevel10k]
 ---
 # 安裝 Homebrew
 <a href="https://brew.sh/index_zh-tw" target="_blank">Homebrew</a>

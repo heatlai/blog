@@ -1,13 +1,14 @@
 ---
 layout: post
-title:  '[PHP] Strict 嚴格模式(強型別)'
-subtitle: 'PHP - Strict Mode'
-description: '怎麼開啟 PHP strict mode 嚴格模式(強型別)'
+title:  '[PHP] 嚴格模式(強型別)'
+subtitle: 'PHP - Strict Types'
+description: '怎麼開啟 PHP strict_types 嚴格模式(強型別)'
 background: '/img/posts/01.jpg'
 
 date: 2018-02-18
 
 tags: [PHP]
+keywords: [嚴格模式, Strict Types, strict_types, 強型別]
 ---
 
 # 嚴格模式(強型別)

@@ -1,13 +1,13 @@
 ---
 layout: post
-title:  '[CentOS] 安裝 Supervisor Daemon管理'
-subtitle: 'CentOS - Install Supervisor'
+title:  '[CentOS] 安裝 Supervisor Daemon 管理'
+subtitle: 'CentOS - Managing Daemons With Supervisor'
 background: '/img/posts/01.jpg'
 
 date: 2018-10-18
 
 tags: [CentOS]
-keywords: [Supervisor, Install]
+keywords: [Supervisor, Install, Daemon, Manager]
 ---
 
 # 安裝

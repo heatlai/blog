@@ -1,22 +1,24 @@
 ---
 layout: post
 title:  '[Nginx] 用 AWS Load Balancer 串接 Nginx 反向代理 PHP-FPM'
-subtitle: 'Nginx Reverse Proxy With AWS Load Balancer'
+subtitle: 'Nginx Reverse Proxy To PHP-FPM With AWS Load Balancer'
 background: '/img/posts/01.jpg'
 date: 2019-08-19
+
 category: Develop
 tags: [Nginx, AWS]
-keywords: [Load Balance, Reverse Proxy, php-fpm]
+keywords: [Load Balancer, Reverse Proxy, PHP-FPM]
 ---
 
 # 反向代理在做什麼？
-分析 Request 然後分流至後端很多台不同 server  
-也就是對外是一個 domain，其實每個網址後面是很多不同 server 在服務  
-可以做像是：  
-example.com/order -> order-server:7788  
-example.com/sign-in -> sign-in-server:9487  
-order.example.com -> order-server:7788  
-之類的事
+分析 Request 然後轉發至後端不同的 server 進行後續處理   
+舉例：  
+
+- "example.com/order" -> "order-server:80"  
+- "example.com/sign-in" -> "sign-in-server:80"  
+- "example.com/shop" -> "shop-server:80"
+
+對外只有一個 domain，但其實每個不同網址的 Request 是不同 server 在處理
 
 ## 架構 
 User <- `HTTPS` -> AWS Load Balancer <- `HTTP` -> 反向代理 Nginx <- `HTTP` -> App Nginx <- `fastcgi` -> PHP-FPM
@@ -37,7 +39,7 @@ IF ： Requests otherwise not routed
 Redirect(301) to https://#{host}:443/#{path}?#{query}
 ```
 
-### AWS Load Balancer 
+### AWS Load Balancer
 ```
 Listener : HTTPS  
 Target Group : HTTP  
@@ -47,13 +49,13 @@ IF : Host header is "example.com" or "www.example.com"
 THEN : Forward to "Nginx-tier-1"
 ```
 
-### 反向代理 Nginx Config
+### 反向代理(Reverse Proxy) Nginx Config
 ```nginx
 
 # 抓取 X-Forwarded 參數繼續後送
 map $http_x_forwarded_proto $x_proto {
     default $http_x_forwarded_proto;
-    "" "http";
+    "" "https";
 }
 map $http_x_forwarded_port $x_port {
     default $http_x_forwarded_port;
@@ -98,7 +100,7 @@ server {
 }
 ```
 
-### App Nginx Config With PHP-FPM
+### App(PHP-FPM) Nginx Config
 ```nginx
 
 # 抓取 X-Forwarded-Proto 參數 檢查是否為 https
@@ -109,6 +111,7 @@ map $http_x_forwarded_proto $detect_https {
 
 server {
     listen       80;
+    listen       [::]:80;
 
     server_name  example.com www.example.com;
     root  /var/www/html/myproject/public;

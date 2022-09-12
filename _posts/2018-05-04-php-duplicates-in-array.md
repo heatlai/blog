@@ -7,6 +7,7 @@ background: '/img/posts/01.jpg'
 date: 2018-05-04
 
 tags: [PHP]
+keywords: [Duplicate, Array]
 ---
 
 # 取得 array 內重複的 value
