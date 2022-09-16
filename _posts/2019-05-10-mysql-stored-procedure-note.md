@@ -51,8 +51,12 @@ $pdo = new PDO("mysql:host=127.0.0.1;dbname=testing", 'root', '@@mysql');
 $q = $pdo->exec("CALL user_login('$username','$password',@user_id)");
 $res = $pdo->query('SELECT @user_id AS user_id')->fetchAll(PDO::FETCH_ASSOC);
 print_r($res);
-
-?>
+/*
+Array
+(
+    [user_id] => 1
+)
+*/
 ```
 
 ### 直接回傳值
@@ -88,8 +92,12 @@ $pdo = new PDO("mysql:host=127.0.0.1;dbname=testing", 'root', '@@mysql');
 // 執行 sql
 $res = $pdo->query("CALL user_login('$username','$password')")->fetchAll(PDO::FETCH_ASSOC);
 print_r($res);
-
-?>
+/*
+Array
+(
+    [user_id] => 1
+)
+*/
 ```
 
 ## 範例：統計報表
@@ -144,8 +152,6 @@ $pdo = new PDO("mysql:host=127.0.0.1;dbname=testing", 'root', '@@mysql');
 // 執行 sql
 $res = $pdo->exec("CALL count_city_shops()");
 print_r($res);
-
-?>
 ```
 
 ## 範例：查詢父層級(遞迴查詢)
@@ -179,7 +185,7 @@ BEGIN
   DECLARE `parentTypeId` int;
   DECLARE `currentTypeName` varchar(255);
   SELECT `parent_id`, `name` INTO `parentTypeId`, `currentTypeName`
-  FROM categories
+  FROM `categories`
   WHERE `id` = `typeId`;
 
   IF `parentTypeId` IS NOT NULL THEN
