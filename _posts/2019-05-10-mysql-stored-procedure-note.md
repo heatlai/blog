@@ -149,7 +149,9 @@ print_r($res);
 ```
 
 ## 範例：查詢父層級(遞迴查詢)
+
 - 測試資料
+
 ```sql
 DROP TABLE IF EXISTS `categories`;
 
@@ -163,7 +165,9 @@ CREATE TABLE `categories` (
 
 INSERT INTO `categories` VALUES (0,NULL,'Root',NULL),(1,0,'Food',NULL),(2,1,'Fast food',NULL),(3,2,'American',NULL),(4,2,'Japan',NULL),(5,3,'McDonald',NULL),(6,4,'Ichran',NULL);
 ```
+
 - MySQL Stored Procedure
+
 ```sql
 DROP PROCEDURE IF EXISTS `getParent`;
 DELIMITER //
