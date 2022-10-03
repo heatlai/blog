@@ -71,3 +71,13 @@ Content-Type: text/css; charset=utf-8
     </head>
 </html>
 ```
+
+### 4. 使用 UTF-8 跳脫文字
+- 注意：要移除 unicode 的 `u`，例如 `折` 的編碼是 `\u6298` 要寫成 `\6298` 
+
+```css
+/* 原始文字 */
+a::after { content: "折扣碼"; }
+/* 改為 */
+a::after { content: "\6298\6263\78bc"; }
+```
