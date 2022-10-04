@@ -33,7 +33,8 @@ a::after { content: "æŠ˜æ‰£ç¢¼"; }
 
 ## 解決方案
 ### 1. HTTP Response Header 的 Content-Type
-如果可以修改 Web Server Config 的話，建議採用，有最高優先權。
+
+> 如果可以修改 Web Server Config 的話，建議採用，有最高優先權。
 
 原本
 ```text
@@ -45,8 +46,7 @@ Content-Type: text/css; charset=utf-8
 ```
 
 ### 2. @charset
-無法修改 Web Server Config 時，可採用此方法。
-也是比較方便 Developer 的方法。
+> 無法修改 Web Server Config 時，可採用此方法。這也是比較方便 Developer 的方法。
 
 正確寫法
 ```css
@@ -61,7 +61,7 @@ Content-Type: text/css; charset=utf-8
 ```
 
 ### 3. 參考 HTML Document 的編碼
-- `<meta charset>` 元素必須 `完整` 的在 Document 的前 `1024` 個 `bytes` 裡
+> 注意：`<meta charset>` 元素必須 `完整` 的在 Document 的前 `1024` 個 `bytes` 裡
 
 ```html
 <html>
@@ -73,7 +73,7 @@ Content-Type: text/css; charset=utf-8
 ```
 
 ### 4. 使用 UTF-8 跳脫文字
-- 注意：要移除 unicode 的 `u`，例如 `折` 的編碼是 `\u6298` 要寫成 `\6298` 
+> 注意：要移除 unicode 的 `u`，例如 `折` 的編碼是 `\u6298` 要寫成 `\6298` 
 
 ```css
 /* 原始文字 */
