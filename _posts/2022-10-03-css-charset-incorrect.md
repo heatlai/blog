@@ -46,13 +46,16 @@ Content-Type: text/css; charset=utf-8
 ```
 
 ### 2. @charset
-> 無法修改 Web Server Config 時，可採用此方法。這也是比較方便 Developer 的方法。
+> 無法修改 Web Server Config 時，可採用此方法。也是比較方便 Developer 的方法。
 
-正確寫法
+- 正確寫法
+
 ```css
 @charset "UTF-8"; /* 一定要寫在檔案的第一行 */
 ```
-錯誤寫法
+
+- 錯誤寫法
+
 ```css
 @charset 'UTF-8'; /* 不可用單引號 */
 @charset  "UTF-8"; /* @charset 跟 "UTF-8" 之間多了一個空格 */
@@ -61,12 +64,12 @@ Content-Type: text/css; charset=utf-8
 ```
 
 ### 3. 參考 HTML Document 的編碼
-> 注意：`<meta charset>` 元素必須 `完整` 的在 Document 的前 `1024` 個 `bytes` 裡
+> 注意：`<meta charset>` 元素必須 `完整` 的在 Document 的前 `1024` 個 `bytes(ASCII 字元)` 裡
 
 ```html
 <html>
     <head>
-        <!-- 建議 <head> 和 <meta charset> 之間不要放東西 -->
+        <!-- 在 <head> 和 <meta charset> 之間不要放東西 -->
         <meta charset="utf-8" />
     </head>
 </html>
