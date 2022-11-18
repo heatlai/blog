@@ -15,9 +15,6 @@ ad_enable: true
 #facebook_username: StartBootstrap
 linkedin_username: heatlai
 
-# Add your google-analytics ID here to activate google analytics
-google_analytics:   UA-XXXXXXXXX-X # out your google-analytics code
-
 # Disqus Comments
 disqus:
   shortname: heatlai
