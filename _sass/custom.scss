@@ -5,6 +5,9 @@ pre {
     padding: 1rem;
     line-height: 1.4;
     background-color: #f9f9f9;
+    a {
+        color: var(--blue);
+    }
 }
 
 header.masthead .post-heading .meta {
