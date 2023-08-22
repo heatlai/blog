@@ -14,17 +14,23 @@ keywords: [Postfix, Dovecot, Mailgun]
 - OS : CentOS 7
 - SMTP : postfix port 25, 465, 587
 - POP3 : dovecot port 995
+- IMAP : dovecot port 993
 - 虛擬帳號設定 : 虛擬網域 & 虛擬使用者
 - GCP 鎖 port 25，只能用第三方寄信服務，我選用 Mailgun
 - DKIM 跟 SPF 設定去看 Mailgun 文件，這兩個東西我沒有自己做:D
 - 後面有附加一些方便操作的 Shell Script，用的時候要用 root 或 sudo
 
-## 設定 DNS A record
+## DNS 設定
+### A record
 - mail.example.com A xxx.xxx.xxx.xxx
+### MX record
+- example.com MX 10 mail.example.com
 
 ## 台北時區
 
 ```bash
+timedatectl set-timezone Asia/Taipei
+# or
 ln -sf /usr/share/zoneinfo/Asia/Taipei /etc/localtime
 ```
 
@@ -88,27 +94,30 @@ alternatives --config mta # 選擇 mta sendmail.postfix
 
 ```bash
 cd ~
-git clone https://github.com/Neilpang/acme.sh.git
+git clone https://github.com/acmesh-official/acme.sh.git
 cd acme.sh
 ./acme.sh --install
-source ~/.bashrc
+# 重新登入 shell
 acme.sh --version
-# 如果 server 上有開 web 可把 --standalone 換成 --nginx or --apache
+acme.sh --set-default-ca --server letsencrypt
+# 如果 server 上有開 web server
+# 可把 --standalone 換成 --nginx or --apache
 # 會自動修改 web config 驗證完再改回來 
 acme.sh --issue -k 4096 --standalone --log -d [FQDN]
+mkdir -p /etc/ssl/certs/[FQDN]
 acme.sh --install-cert -d [FQDN] \
-        --key-file   /etc/ssl/certs/[FQDN]/[FQDN].key \
+        --key-file /etc/ssl/certs/[FQDN]/private.key \
         --fullchain-file /etc/ssl/certs/[FQDN]/fullchain.cer
 
-# 確認證書 要有 fullchain.cer, [FQDN].key 兩個檔案
+# 確認證書安裝成功，要有 fullchain.cer, private.key 兩個檔案
 ls /etc/ssl/certs/[FQDN]
 
 # 等整個 mail service 設定完再跑一次包含 --reloadcmd 的 --install-cert
-# 這樣自動更新證書時就會順便重載 mail service
+# 這樣自動更新證書時就會順便重新載入 Mail Service
 #acme.sh --install-cert -d [FQDN] \
-#        --key-file   /etc/ssl/certs/[FQDN]/[FQDN].key \
+#        --key-file /etc/ssl/certs/[FQDN]/private.key \
 #        --fullchain-file /etc/ssl/certs/[FQDN]/fullchain.cer \
-#        --reloadcmd  "systemctl reload postfix dovecot"
+#        --reloadcmd "systemctl reload postfix dovecot"
 ```
 
 ### 建立一個實體使用者給 service 操作虛擬信箱
@@ -130,14 +139,14 @@ chown vmail. /var/mail/vhosts
 # 建立資料檔 後面設定會用到
 touch /etc/postfix/virtual_domains
 touch /etc/postfix/virtual_aliases \
-    && echo "root@mail.example.com\troot@localhost" >> /etc/postfix/virtual_aliases \
+    && echo -e "root@mail.example.com\troot@localhost" >> /etc/postfix/virtual_aliases \
     && postmap /etc/postfix/virtual_aliases
-touch /etc/postfix/virtual_mailbox && postmap /etc/postfix/virtual_mailbox
+touch /etc/postfix/virtual_mailbox \
+    && postmap /etc/postfix/virtual_mailbox
 
 # DH parameters
 openssl dhparam -out /etc/postfix/dh512.pem 512
 openssl dhparam -out /etc/postfix/dh1024.pem 1024
-# or openssl dhparam -out /etc/postfix/dh2048.pem 2048
 
 # smtp auth 帳密檔
 # 下面是 mailgun 設定
@@ -190,23 +199,19 @@ smtp_tls_loglevel = 1
 smtp_tls_security_level = encrypt
 smtpd_use_tls = yes
 smtpd_tls_cert_file = /etc/ssl/certs/[FQDN]/fullchain.cer
-smtpd_tls_key_file = /etc/ssl/certs/[FQDN]/[FQDN].key
+smtpd_tls_key_file = /etc/ssl/certs/[FQDN]/private.key
 smtpd_tls_loglevel = 1
 smtpd_tls_session_cache_database = btree:/var/lib/postfix/smtpd_scache
 smtpd_tls_session_cache_timeout = 3600s
 smtpd_tls_dh512_param_file = /etc/postfix/dh512.pem
 smtpd_tls_dh1024_param_file = /etc/postfix/dh1024.pem
-smtp_tls_protocols = !SSLv2, !SSLv3
-smtp_tls_mandatory_protocols = !SSLv2, !SSLv3
-smtpd_tls_protocols = !SSLv2, !SSLv3
-smtpd_tls_mandatory_protocols = !SSLv2, !SSLv3
+smtp_tls_protocols = >=TLSv1
+smtp_tls_mandatory_protocols = >=TLSv1
+smtpd_tls_protocols = >=TLSv1
+smtpd_tls_mandatory_protocols = >=TLSv1
 tls_preempt_cipherlist = yes
 smtp_tls_ciphers = high
 smtpd_tls_ciphers = high
-smtp_tls_exclude_ciphers = EXP, MEDIUM, LOW, DES, 3DES, SSLv2
-smtpd_tls_exclude_ciphers = EXP, MEDIUM, LOW, DES, 3DES, SSLv2
-tls_high_cipherlist = kEECDH:+kEECDH+SHA:kEDH:+kEDH+SHA:+kEDH+CAMELLIA:kECDH:+kECDH+SHA:kRSA:+kRSA+SHA:+kRSA+CAMELLIA:!aNULL:!eNULL:!SSLv2:!RC4:!MD5:!DES:!EXP:!SEED:!IDEA:!3DES
-tls_medium_cipherlist = kEECDH:+kEECDH+SHA:kEDH:+kEDH+SHA:+kEDH+CAMELLIA:kECDH:+kECDH+SHA:kRSA:+kRSA+SHA:+kRSA+CAMELLIA:!aNULL:!eNULL:!SSLv2:!MD5:!DES:!EXP:!SEED:!IDEA:!3DES
 
 # smtp auth
 broken_sasl_auth_clients = yes
@@ -231,7 +236,8 @@ smtpd_sasl_path = private/auth
 ### body_checks                       (DATA)
 smtpd_client_restrictions =
                 permit_mynetworks,
-                reject_unknown_client_hostname,
+                reject_non_fqdn_sender,
+                reject_non_fqdn_recipient,
                 permit
 
 smtpd_helo_restrictions =
@@ -242,7 +248,8 @@ smtpd_helo_restrictions =
 smtpd_sender_restrictions =
                 permit_mynetworks,
                 reject_unknown_sender_domain,
-                reject_non_fqdn_sender
+                reject_non_fqdn_sender,
+                permit
 
 # permit_mynetworks, 允許來自 $mynetworks 的「寄信人」
 # permit_sasl_authenticated, 允許經本機 SASL 驗證過的「寄信人」
@@ -251,6 +258,7 @@ smtpd_sender_restrictions =
 smtpd_recipient_restrictions =
                 permit_mynetworks,
                 permit_sasl_authenticated,
+                reject_unauth_destination,
                 permit_auth_destination,
                 reject
 
@@ -272,18 +280,21 @@ virtual_mailbox_limit = 0
 vi /etc/postfix/master.cf
 
 smtp      inet  n       -       n       -       -       smtpd
-#465
-smtps     inet  n       -       n       -       -       smtpd
-    -o syslog_name=postfix/smtps
-    -o smtpd_tls_wrappermode=yes
-    -o smtpd_sasl_auth_enable=yes
-    -o smtpd_client_restrictions=permit_sasl_authenticated,reject
-# 587
+# port 465
+# postfix 舊版叫 smtps 新版叫 submissions
+#smtps     inet  n       -       n       -       -       smtpd
+submissions     inet  n       -       n       -       -       smtpd
+  -o syslog_name=postfix/submissions
+  -o smtpd_tls_wrappermode=yes
+  -o smtpd_sasl_auth_enable=yes
+  -o smtpd_client_restrictions=permit_sasl_authenticated,reject
+# port 587
 submission inet n       -       n       -       -       smtpd
-    -o syslog_name=postfix/submission
-    -o smtpd_tls_security_level=encrypt
-    -o smtpd_sasl_auth_enable=yes
-    -o smtpd_client_restrictions=permit_sasl_authenticated,reject
+  -o syslog_name=postfix/submission
+  -o smtpd_tls_security_level=encrypt
+  -o smtpd_sasl_auth_enable=yes
+  -o smtpd_tls_auth_only=yes
+  -o smtpd_client_restrictions=permit_sasl_authenticated,reject
 
 :wq
 ```
@@ -293,7 +304,7 @@ submission inet n       -       n       -       -       smtpd
 vi /etc/dovecot/dovecot.conf
 
 #protocols = imap pop3 lmtp
-protocols = pop3
+protocols = imap pop3
 
 # listen = *, ::
 listen = *
@@ -313,8 +324,6 @@ service imap-login {
   inet_listener imaps {
     #port = 993
     #ssl = yes
-    port = 0
-    ssl = no
   }
 }
 service pop3-login {
@@ -325,8 +334,8 @@ service pop3-login {
   }
   # 開啟 pop3s
   inet_listener pop3s {
-    port = 995
-    ssl = yes
+    #port = 995
+    #ssl = yes
   }
 }
 
@@ -364,6 +373,7 @@ auth_mechanisms = cram-md5 plain login
 # 虛擬使用者密碼檔
 touch /etc/dovecot/passwd
 chown dovecot. /etc/dovecot/passwd
+
 vi /etc/dovecot/conf.d/auth-passwdfile.conf.ext
 
 # 清除其他設定，只留下面的
@@ -438,12 +448,17 @@ ssl = required
 #ssl_cert = </etc/pki/dovecot/certs/dovecot.pem
 ssl_cert = </etc/ssl/certs/[FQDN]/fullchain.cer
 #ssl_key = </etc/pki/dovecot/private/dovecot.pem
-ssl_key = </etc/ssl/certs/[FQDN]/[FQDN].key
+ssl_key = </etc/ssl/certs/[FQDN]/private.key
 
+ssl_prefer_server_ciphers = yes
+
+# 舊版
 #ssl_dh_parameters_length = 2048
 #ssl_protocols = !SSLv2 !SSLv3
-ssl_cipher_list = kEECDH:+kEECDH+SHA:kEDH:+kEDH+SHA:+kEDH+CAMELLIA:kECDH:+kECDH+SHA:kRSA:+kRSA+SHA:+kRSA+CAMELLIA:!aNULL:!eNULL:!SSLv2:!RC4:!MD5:!DES:!EXP:!SEED:!IDEA:!3DES
-ssl_prefer_server_ciphers = yes
+#ssl_cipher_list = kEECDH:+kEECDH+SHA:kEDH:+kEDH+SHA:+kEDH+CAMELLIA:kECDH:+kECDH+SHA:kRSA:+kRSA+SHA:+kRSA+CAMELLIA:!aNULL:!eNULL:!SSLv2:!RC4:!MD5:!DES:!EXP:!SEED:!IDEA:!3DES
+# 新版
+ssl_min_protocol = TLSv1
+ssl_cipher_list = PROFILE=SYSTEM
 
 :wq
 ```
@@ -462,7 +477,7 @@ systemctl enable dovecot
 systemctl start postfix
 systemctl start dovecot
 
-# 檢查 25、465、587、995 監聽
+# 檢查 25、465、587、995、993 監聽
 netstat -tpln
 ```
 
@@ -484,7 +499,7 @@ openssl s_client -connect localhost:465
 # openssl s_client -starttls smtp -connect localhost:587
 
 # 先送 helo 跟 AUTH
-EHLO test@example.com
+EHLO test
 AUTH CRAM-MD5
 # server 會回 334 跟著後面一大串的字是 [challenge] 複製起來 
 # 下面的 [challenge] 是我亂打的 正常沒有那麼短
@@ -495,7 +510,7 @@ dGVzdEBleGFtcGxlLmNvbSAoc3RkaW4pPSBhZTdlZjMxNDJlYTQ0ZTQzODI4YzdmODdhZWE1OWY5Ng==
 # 複製 echo 出來的密碼 貼到 SMTP 登入的 terminal 送出
 235 2.7.0 Authentication successful # 登入成功
 ```
-- PLAIN 登入(如果有用PLAIN的話，我沒用到)
+- PLAIN 登入
 
 ```bash
 # AUTH PLAIN 密碼 copy起來
@@ -503,7 +518,7 @@ printf "\0%s\0%s" "test@example.com" "mypassword" | base64
 AHRlc3RAZXhhbXBsZS5jb20AbXlwYXNzd29yZA== # <= 這是密碼
 # smtp 登入
 telnet localhost 25
-EHLO test@example.com
+EHLO test
 #AUTH PLAIN [密碼]
 AUTH PLAIN AHRlc3RAZXhhbXBsZS5jb20AbXlwYXNzd29yZA==
 235 2.7.0 Authentication successful # 登入成功
@@ -521,6 +536,8 @@ echo 'TEST MESSAGE BODY' | mail -s 'THIS IS DEMO SUBJECT' test@example.com
 
 ```bash
 #!/usr/bin/env bash
+
+set -e
 
 #
 # postfix - add virtual domain
@@ -556,6 +573,8 @@ fi
 ```bash
 #!/usr/bin/env bash
 
+set -e
+
 #
 # postfix - show virtual user password
 #
@@ -568,13 +587,13 @@ if [ -z "$1" ]; then
     exit 128
 fi
 EMAIL=$1
-if ! echo ${EMAIL} | grep -sq "@"; then
+if ! echo "${EMAIL}" | grep -sq "@"; then
     echo "error:'${EMAIL}' is not email address!"
     exit 128
 fi
 
 if grep -sq "#${EMAIL}:" /etc/dovecot/passwd; then
-    PASSWORD=`grep "#${EMAIL}:" /etc/dovecot/passwd | cut -d':' -f2`
+    PASSWORD=$(grep "#${EMAIL}:" /etc/dovecot/passwd | cut -d':' -f2)
     echo "PLAIN Password: ${PASSWORD}"
 else
     echo "error:'${EMAIL}' is not exists!"
@@ -586,6 +605,8 @@ fi
 
 ```bash
 #!/usr/bin/env bash
+
+set -e
 
 #
 # postfix - add virtual user
@@ -600,7 +621,7 @@ if [ -z "$1" ]; then
 fi
 
 EMAIL=$1
-if ! echo ${EMAIL} | grep -sq "@"; then
+if ! echo "${EMAIL}" | grep -sq "@"; then
     echo "error:'${EMAIL}' is not email address!"
     exit 128
 fi
@@ -608,13 +629,11 @@ fi
 PASSWORD=$2
 # check PASSWORD 沒輸入時自動產生密碼
 if [ -z "${PASSWORD}" ]; then
-    PASSWORD=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1`
-    # php exec 不能跑 cat /dev/urandom 會 halt，替代方案
-    # PASSWORD=`openssl rand -base64 36 | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1`
+    PASSWORD=$(openssl rand -base64 36 | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)
 fi
 
-USERNAME=`echo ${EMAIL} | cut -d'@' -f1`
-DOMAIN=`echo ${EMAIL} | cut -d'@' -f2`
+USERNAME=$(echo "${EMAIL}" | cut -d'@' -f1)
+DOMAIN=$(echo "${EMAIL}" | cut -d'@' -f2)
 
 if grep -v "#" /etc/dovecot/passwd | grep -sq "${EMAIL}"; then
     echo "error:'${EMAIL}'is exists!"
@@ -627,7 +646,7 @@ if ! grep -v "#" /etc/postfix/virtual_domains | grep -sq -e "^${DOMAIN}$"; then
 fi
 
 # 密碼加密
-ENCRYPT_PASSWORD=`doveadm pw -s CRAM-MD5 -p "${PASSWORD}"`
+ENCRYPT_PASSWORD=$(doveadm pw -s CRAM-MD5 -p "${PASSWORD}")
 # 寫入密碼
 echo "${EMAIL}:${ENCRYPT_PASSWORD}" >> /etc/dovecot/passwd
 # 保留明文密碼
@@ -643,6 +662,8 @@ systemctl reload postfix
 ```bash
 #!/usr/bin/env bash
 
+set -e
+
 #
 # postfix - change virtual user password
 #
@@ -656,7 +677,7 @@ if [ -z "$1" ]; then
 fi
 
 EMAIL=$1
-if ! grep -v "#" /etc/dovecot/passwd | grep -sq ${EMAIL}; then
+if ! grep -v "#" /etc/dovecot/passwd | grep -sq "${EMAIL}"; then
     echo "error:'${EMAIL}' is not exists!"
     exit 1
 fi
@@ -664,13 +685,11 @@ fi
 PASSWORD=$2
 # check PASSWORD 沒輸入時自動產生密碼
 if [ -z "${PASSWORD}" ]; then
-    PASSWORD=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1`
-    # php exec 不能跑 cat /dev/urandom 會 halt，替代方案
-    # PASSWORD=`openssl rand -base64 36 | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1`
+    PASSWORD=$(openssl rand -base64 36 | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)
 fi
 
 # 密碼加密
-ENCRYPT_PASSWORD=`doveadm pw -s CRAM-MD5 -p "${PASSWORD}"`
+ENCRYPT_PASSWORD=$(doveadm pw -s CRAM-MD5 -p "${PASSWORD}")
 # 刪除舊密碼
 sed -i -e "/${EMAIL}/d" /etc/dovecot/passwd
 # 寫入新密碼
@@ -685,6 +704,8 @@ echo "#${EMAIL}:${PASSWORD}" >> /etc/dovecot/passwd
 ```bash
 #!/usr/bin/env bash
 
+set -e
+
 #
 # postfix - list virtual user
 #
@@ -693,11 +714,13 @@ echo "#${EMAIL}:${PASSWORD}" >> /etc/dovecot/passwd
 
 grep -v "#" /etc/dovecot/passwd | cut -d':' -f1
 ```
-### 刪除虛擬網域 
+### 刪除虛擬網域
 - postfix_delete_domain.sh
 
 ```bash
 #!/usr/bin/env bash
+
+set -e
 
 #
 # postfix - delete virtual domain
@@ -741,6 +764,8 @@ systemctl reload postfix
 ```bash
 #!/usr/bin/env bash
 
+set -e
+
 #
 # postfix - delete virtual user
 #
@@ -754,17 +779,17 @@ if [ -z "$1" ]; then
 fi
 
 EMAIL=$1
-if ! echo ${EMAIL} | grep -sq "@"; then
+if ! echo "${EMAIL}" | grep -sq "@"; then
     echo "error:'${EMAIL}' is not email address!"
     exit 128
 fi
-if ! grep -sq ${EMAIL} /etc/dovecot/passwd; then
+if ! grep -sq "${EMAIL}" /etc/dovecot/passwd; then
     echo "error:'${EMAIL}' is not exists!"
     exit 1
 fi
 
-USERNAME=`echo ${EMAIL} | cut -d'@' -f1`
-DOMAIN=`echo ${EMAIL} | cut -d'@' -f2`
+USERNAME=$(echo "${EMAIL}" | cut -d'@' -f1)
+DOMAIN=$(echo "${EMAIL}" | cut -d'@' -f2)
 
 VHOST=/var/mail/vhosts
 
@@ -773,7 +798,7 @@ sed -i -e "/${EMAIL}/d" /etc/dovecot/passwd
 # 虛擬帳號信箱對應表刪除
 sed -i -e "/${EMAIL}/d" /etc/postfix/virtual_mailbox
 # 信箱資料夾刪除
-rm -rf ${VHOST}/${DOMAIN}/${USERNAME}
+rm -rf "${VHOST:?}/${DOMAIN:?}/${USERNAME:?}"
 # 虛擬信箱別名刪除
 sed -i -e "/${EMAIL}/d" /etc/postfix/virtual_aliases
 # 套用新設定
@@ -889,7 +914,7 @@ example.com. IN TXT "v=spf1 include:_spf.google.com ~all"
 # ~all SoftFail 錯誤但不拒收
 # -all Fail 錯誤要拒收
 ```
-### DKIM (DomainKeys Identified Mail)
+### DKIM (DomainKeys Identified Mail) (自己發信時才需要)
 #### 安裝設定
 ```bash
 yum install -y opendkim
@@ -918,6 +943,8 @@ milter_default_action = accept
 #### DKIM 新增 Shell Script
 ```bash
 #!/usr/bin/env bash
+
+set -e
 
 #
 # DKIM - add domain key
@@ -963,6 +990,8 @@ cat /etc/opendkim/keys/${DOMAIN}/default.txt
 
 ```bash
 #!/usr/bin/env bash
+
+set -e
 
 #
 # DKIM - delete domain key
