@@ -22,9 +22,13 @@ keywords: [Postfix, Dovecot, Mailgun]
 
 ## DNS 設定
 ### A record
-- mail.example.com A xxx.xxx.xxx.xxx
+```text
+mail.example.com A xxx.xxx.xxx.xxx
+```
 ### MX record
-- example.com MX 10 mail.example.com
+```text
+example.com MX 10 mail.example.com
+```
 
 ## 台北時區
 
@@ -126,6 +130,7 @@ ls /etc/ssl/certs/[FQDN]
 - group name: vmail
 - gid : 5000
 - virtual domain base : /var/mail/vhosts
+
 ```bash
 groupadd -g 5000 vmail
 useradd -u 5000 -g vmail -s /sbin/nologin vmail
@@ -146,7 +151,7 @@ touch /etc/postfix/virtual_mailbox \
 
 # DH parameters
 openssl dhparam -out /etc/postfix/dh512.pem 512
-openssl dhparam -out /etc/postfix/dh1024.pem 1024
+openssl dhparam -out /etc/postfix/dh2048.pem 2048
 
 # smtp auth 帳密檔
 # 下面是 mailgun 設定
@@ -203,8 +208,11 @@ smtpd_tls_key_file = /etc/ssl/certs/[FQDN]/private.key
 smtpd_tls_loglevel = 1
 smtpd_tls_session_cache_database = btree:/var/lib/postfix/smtpd_scache
 smtpd_tls_session_cache_timeout = 3600s
+# Postfix >= 3.6 此參數將被忽略
 smtpd_tls_dh512_param_file = /etc/postfix/dh512.pem
-smtpd_tls_dh1024_param_file = /etc/postfix/dh1024.pem
+# Postfix >= 3.7 + OpenSSL >= 3.0.0 建議為空
+# Postfix <= 3.7 建議使用 2048 位元
+smtpd_tls_dh1024_param_file = /etc/postfix/dh2048.pem
 smtp_tls_protocols = >=TLSv1
 smtp_tls_mandatory_protocols = >=TLSv1
 smtpd_tls_protocols = >=TLSv1
@@ -332,7 +340,6 @@ service pop3-login {
     #port = 110
     port = 0
   }
-  # 開啟 pop3s
   inet_listener pop3s {
     #port = 995
     #ssl = yes
