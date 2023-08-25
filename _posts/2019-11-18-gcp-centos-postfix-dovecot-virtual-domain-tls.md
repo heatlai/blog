@@ -107,7 +107,7 @@ acme.sh --set-default-ca --server letsencrypt
 # 如果 server 上有開 web server
 # 可把 --standalone 換成 --nginx or --apache
 # 會自動修改 web config 驗證完再改回來 
-acme.sh --issue -k 4096 --standalone --log -d [FQDN]
+acme.sh --issue --standalone -d [FQDN]
 mkdir -p /etc/ssl/certs/[FQDN]
 acme.sh --install-cert -d [FQDN] \
         --key-file /etc/ssl/certs/[FQDN]/private.key \
